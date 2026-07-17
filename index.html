@@ -959,16 +959,80 @@
         return raw ? JSON.parse(raw) : null;
       } catch (e) { return null; }
     }
+
+    async function getCurrentLocation() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("Geolocation is not supported by this browser."));
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            resolve({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy,
+              timestamp: new Date(position.timestamp).toISOString()
+            });
+          },
+          (error) => {
+            switch (error.code) {
+              case error.PERMISSION_DENIED:
+                reject(new Error("Location permission denied."));
+                break;
+              case error.POSITION_UNAVAILABLE:
+                reject(new Error("Location unavailable."));
+                break;
+              case error.TIMEOUT:
+                reject(new Error("Location request timed out."));
+                break;
+              default:
+                reject(new Error("Unable to get location."));
+            }
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+          }
+        );
+      });
+    }
+
     async function saveReport(report) {
       if (!STORAGE_OK) throw new Error('Storage not available in this browser');
+      try {
+        const location = await getCurrentLocation();
+
+        report.location = {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          accuracy: location.accuracy,
+          capturedAt: location.timestamp,
+          mapsLink: `https://www.google.com/maps?q=${location.latitude},${location.longitude}`
+        };
+        console.log(report);
+
+      } catch (err) {
+        alert(
+          "Location permission is required to save the report.\n\n" +
+          err.message
+        );
+        return;
+      }
       localStorage.setItem(STORAGE_PREFIX + report.id, JSON.stringify(report));
       const idx = await getIndex();
       const i = idx.findIndex(r => r.id === report.id);
-      const summary = { id: report.id, date: report.date, client: report.client, boilerType: report.boilerType, boilerNo: report.boilerNo, hardness: report.hardness };
+      const summary = {
+        id: report.id, date: report.date, client: report.client, boilerType: report.boilerType, boilerNo: report.boilerNo, hardness: report.hardness, latitude: report.location.latitude,
+        longitude: report.location.longitude
+      };
       if (i >= 0) idx[i] = summary; else idx.push(summary);
       idx.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
       await setIndex(idx);
     }
+
     async function deleteReport(id) {
       localStorage.removeItem(STORAGE_PREFIX + id);
       const idx = await getIndex();
@@ -1303,6 +1367,36 @@
         <div><div class="k">Operating pressure</div><div class="v">${r.pressure || '—'}</div></div>
         <div><div class="k">Condensate return</div><div class="v">${r.condensate || '—'}</div></div>
         <div><div class="k">External treatment</div><div class="v">${r.extTreatment || '—'}</div></div>
+        <div>
+    <div class="k">Latitude</div>
+    <div class="v">
+        ${r.location ? r.location.latitude.toFixed(6) : '—'}
+    </div>
+</div>
+
+<div>
+    <div class="k">Longitude</div>
+    <div class="v">
+        ${r.location ? r.location.longitude.toFixed(6) : '—'}
+    </div>
+</div>
+
+<div>
+    <div class="k">Accuracy</div>
+    <div class="v">
+        ${r.location ? Math.round(r.location.accuracy) + " m" : '—'}
+    </div>
+</div>
+
+<div>
+    <div class="k">Google Maps</div>
+    <div class="v">
+        ${r.location
+          ? `<a href="${r.location.mapsLink}" target="_blank">Open Location</a>`
+          : "—"
+        }
+    </div>
+</div>
       </div>
     </div>
 
@@ -1444,6 +1538,44 @@
 
       y += 8;
 
+      if (report.location) {
+
+        pdf.text(
+          `Latitude : ${report.location.latitude.toFixed(6)}`,
+          15,
+          y
+        );
+
+        pdf.text(
+          `Longitude : ${report.location.longitude.toFixed(6)}`,
+          120,
+          y
+        );
+
+        y += 8;
+
+        pdf.text(
+          `Accuracy : ${Math.round(report.location.accuracy)} m`,
+          15,
+          y
+        );
+
+        pdf.setTextColor(0, 0, 255);
+
+        pdf.textWithLink(
+          "Open Google Maps",
+          120,
+          y,
+          {
+            url: report.location.mapsLink
+          }
+        );
+
+        pdf.setTextColor(0, 0, 0);
+
+        y += 12;
+      }
+
       pdf.text(`Condensate Return : ${report.condensate || ""}`, 15, y);
       pdf.text(`External Treatment : ${report.extTreatment || ""}`, 120, y);
 
@@ -1564,17 +1696,17 @@
        ============================================================ */
     async function downloadPDF() {
 
-    if(!currentReport) return;
+      if (!currentReport) return;
 
-    const { jsPDF } = window.jspdf;
+      const { jsPDF } = window.jspdf;
 
-    const pdf = new jsPDF("p","mm","a4");
+      const pdf = new jsPDF("p", "mm", "a4");
 
-    drawReportPDF(pdf,currentReport);
+      drawReportPDF(pdf, currentReport);
 
-    pdf.save("Water_Analysis_Report.pdf");
+      pdf.save("Water_Analysis_Report.pdf");
 
-}
+    }
 
     /* ============================================================
        PRINT ALL (respects current date filter)
@@ -1619,36 +1751,36 @@
    DOWNLOAD ALL REPORTS (JS PDF)
    ============================================================ */
 
-document.getElementById("downloadPdf").onclick = async () => {
+    document.getElementById("downloadPdf").onclick = async () => {
 
-    const reports = await getFilteredReports();
+      const reports = await getFilteredReports();
 
-    if(reports.length===0){
+      if (reports.length === 0) {
         toast("No reports found");
         return;
-    }
+      }
 
-    toast("Generating PDF...");
+      toast("Generating PDF...");
 
-    const { jsPDF } = window.jspdf;
+      const { jsPDF } = window.jspdf;
 
-    const pdf = new jsPDF("p","mm","a4");
+      const pdf = new jsPDF("p", "mm", "a4");
 
-    for(let i=0;i<reports.length;i++){
+      for (let i = 0; i < reports.length; i++) {
 
-        if(i>0){
-            pdf.addPage();
+        if (i > 0) {
+          pdf.addPage();
         }
 
-        drawReportPDF(pdf,reports[i]);
+        drawReportPDF(pdf, reports[i]);
 
-    }
+      }
 
-    pdf.save(
-        `Boiler_Reports_${new Date().toISOString().slice(0,10)}.pdf`
-    );
+      pdf.save(
+        `Boiler_Reports_${new Date().toISOString().slice(0, 10)}.pdf`
+      );
 
-};
+    };
 
     /* ============================================================
        SHARE
