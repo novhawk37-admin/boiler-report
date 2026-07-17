@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#0B4F4A">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Sakthi Hitec Service — Field Report</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script>
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+
+    :root {
+      --ink: #0B4F4A;
+      --ink-dark: #07322F;
+      --slate: #33484A;
+      --bg: #EEF3F1;
+      --card: #FFFFFF;
+      --line: #D7E1DE;
+      --amber: #C77D26;
+      --amber-dark: #A5651A;
+      --good: #1E7A56;
+      --warn: #C77D26;
+      --bad: #B3261E;
+      --muted: #6B7C7A;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink-dark);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      padding-bottom: 78px;
+    }
+
+    h1,
+    h2,
+    h3,
+    .display {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ---------- Header ---------- */
+    .app-header {
+      background: linear-gradient(160deg, var(--ink) 0%, var(--ink-dark) 100%);
+      color: #EAF3F1;
+      padding: 18px 18px 22px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      box-shadow: 0 4px 14px rgba(7, 50, 47, 0.18);
+    }
+
+    .app-header .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .gauge-logo {
+      flex-shrink: 0;
+      width: 42px;
+      height: 42px;
+    }
+
+    .app-header .titles {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .app-header .titles .brand {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #9FC8C0;
+      margin: 0 0 2px;
+    }
+
+    .app-header .titles h1 {
+      font-size: 19px;
+      margin: 0;
+      font-weight: 600;
+      line-height: 1.15;
+    }
+
+    .app-header .titles .sub {
+      font-size: 12px;
+      color: #BFE0DA;
+      margin-top: 2px;
+    }
+
+    /* ---------- Layout ---------- */
+    .view {
+      display: none;
+      padding: 16px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin: 0 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title .num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: #fff;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--slate);
+      margin: 10px 0 5px;
+    }
+
+    label:first-child {
+      margin-top: 0;
+    }
+
+    input[type=text],
+    input[type=date],
+    input[type=number],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--line);
+      border-radius: 9px;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      color: var(--ink-dark);
+      background: #FCFDFD;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid var(--ink);
+      outline-offset: 1px;
+      border-color: var(--ink);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 56px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 12px;
+    }
+
+    /* chemicals + analysis rows */
+    .dyn-row {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr auto;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    .dyn-row input {
+      font-size: 14px;
+      padding: 8px 9px;
+    }
+
+    .icon-btn {
+      border: none;
+      background: #F0E6D8;
+      color: var(--amber-dark);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn.del {
+      background: #F7E1DE;
+      color: var(--bad);
+    }
+
+    .add-link {
+      background: none;
+      border: 1.5px dashed var(--ink);
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 13px;
+      padding: 9px;
+      width: 100%;
+      border-radius: 9px;
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .analysis-card {
+      padding: 20px;
+    }
+
+    .analysis-table {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .analysis-header,
+    .analysis-row {
+      display: grid;
+      grid-template-columns: 180px repeat(5, 100px);
+      gap: 12px;
+      align-items: center;
+      min-width: 760px;
+    }
+
+    .analysis-header {
+      position: sticky;
+      top: 0;
+      background: #0B4F4A;
+      color: #fff;
+      font-weight: 600;
+      text-align: center;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .analysis-header div:first-child {
+      text-align: left;
+    }
+
+    .analysis-row {
+      padding: 10px 0;
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    .analysis-row:last-child {
+      border-bottom: none;
+    }
+
+    .analysis-row .pname {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .analysis-row input {
+      width: 100%;
+      height: 42px;
+      border: 1px solid #D1D5DB;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 14px;
+      background: #fff;
+      transition: .2s;
+    }
+
+    .analysis-row input:focus {
+      border-color: #0B4F4A;
+      box-shadow: 0 0 0 3px rgba(11, 79, 74, .15);
+      outline: none;
+    }
+
+    .analysis-row input[readonly] {
+      background: #F3F4F6;
+      color: #0B4F4A;
+      font-weight: 600;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .chip {
+      border: 1.5px solid var(--line);
+      border-radius: 20px;
+      padding: 7px 13px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--slate);
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .chip.on {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff;
+    }
+
+    /* signature pad */
+    .sig-wrap {
+      border: 1.5px dashed var(--line);
+      border-radius: 10px;
+      background: #FCFDFD;
+      position: relative;
+    }
+
+    canvas.sig-pad {
+      display: block;
+      width: 100%;
+      height: 120px;
+      touch-action: none;
+      border-radius: 10px;
+    }
+
+    .sig-clear {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 11px;
+      padding: 4px 9px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--slate);
+      cursor: pointer;
+    }
+
+    /* buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: none;
+      border-radius: 11px;
+      padding: 13px 18px;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .btn-primary:active {
+      background: var(--ink-dark);
+    }
+
+    .btn-amber {
+      background: var(--amber);
+      color: #fff;
+    }
+
+    .btn-ghost {
+      background: #fff;
+      color: var(--ink);
+      border: 1.5px solid var(--line);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn-row .btn {
+      width: auto;
+      flex: 1;
+    }
+
+    /* bottom nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex;
+      z-index: 30;
+      box-shadow: 0 -3px 12px rgba(7, 50, 47, 0.06);
+    }
+
+    .bottom-nav button {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 10px 4px 9px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .bottom-nav button.active {
+      color: var(--ink);
+    }
+
+    .bottom-nav svg {
+      width: 21px;
+      height: 21px;
+    }
+
+    /* reports list */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .filter-bar input {
+      font-size: 13.5px;
+    }
+
+    .filter-bar .btn {
+      width: auto;
+      padding: 10px 14px;
+    }
+
+    .report-item {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-bottom: 9px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .report-item .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .report-item .info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .report-item .info .client {
+      font-weight: 700;
+      font-size: 14.5px;
+      color: var(--ink-dark);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .report-item .info .meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .report-item .arrow {
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .eicon {
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    /* detail overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 100;
+      display: none;
+      overflow-y: auto;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    .overlay-header {
+      position: sticky;
+      top: 0;
+      background: var(--ink);
+      color: #fff;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 5;
+    }
+
+    .overlay-header button {
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: #fff;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      font-size: 17px;
+      cursor: pointer;
+    }
+
+    .overlay-header .t {
+      font-weight: 700;
+      font-size: 15px;
+      flex: 1;
+    }
+
+    .overlay-body {
+      padding: 16px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 16px;
+      font-size: 13.5px;
+    }
+
+    .detail-grid .k {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .detail-grid .v {
+      color: var(--ink-dark);
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    table.detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    table.detail-table th,
+    table.detail-table td {
+      border: 1px solid var(--line);
+      padding: 7px 8px;
+      text-align: center;
+    }
+
+    table.detail-table th {
+      background: #EEF3F1;
+      color: var(--ink);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    table.detail-table td:first-child,
+    table.detail-table th:first-child {
+      text-align: left;
+    }
+
+    .action-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .action-bar button {
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: 11px;
+      padding: 10px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .action-bar button.danger {
+      color: var(--bad);
+    }
+
+    .action-bar svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .sig-img {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      max-width: 100%;
+      height: 70px;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 88px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--ink-dark);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 200;
+      opacity: 0;
+      transition: opacity .25s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    /* print-all (multi-report print/PDF) */
+    .print-all-container {
+      display: none;
+    }
+
+    /* print */
+    @media print {
+
+      .app-header,
+      .bottom-nav,
+      .overlay-header,
+      .action-bar,
+      .no-print {
+        display: none !important;
+      }
+
+      .overlay {
+        position: static;
+        background: #fff;
+      }
+
+      .overlay-body {
+        padding: 0;
+        max-width: 100%;
+      }
+
+      .card {
+        border: 1px solid #999;
+        break-inside: avoid;
+      }
+
+      body.printing-all>*:not(.print-all-container) {
+        display: none !important;
+      }
+
+      body.printing-all {
+        padding-bottom: 0;
+      }
+
+      .print-all-container {
+        display: block;
+      }
+
+      .print-all-container .report-page {
+        padding: 0 0 8px;
+        page-break-after: always;
+      }
+
+      .print-all-container .report-page:last-child {
+        page-break-after: auto;
+      }
+    }
+
+    @media not print {
+      body:not(.printing-all) .print-all-container {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <div class="app-header">
+    <div class="row">
+      <svg class="gauge-logo" viewBox="0 0 42 42" fill="none">
+        <circle cx="21" cy="21" r="19" stroke="#EAF3F1" stroke-width="2" opacity="0.35" />
+        <path d="M21 21 L30 13" stroke="#C77D26" stroke-width="2.5" stroke-linecap="round" />
+        <circle cx="21" cy="21" r="3" fill="#EAF3F1" />
+        <path d="M9 27 A17 17 0 0 1 9 15" stroke="#EAF3F1" stroke-width="2" stroke-linecap="round" opacity="0.5" />
+        <path d="M33 15 A17 17 0 0 1 33 27" stroke="#1E7A56" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      <div class="titles">
+        <p class="brand">Sakthi Hitec Service</p>
+        <h1 id="headerTitle">Field Reports</h1>
+        <div class="sub" id="headerSub">Boiler Water Treatment</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VIEW: NEW REPORT (FORM) ================= -->
+  <div class="view active" id="view-form">
+    <form id="reportForm">
+
+      <div class="card">
+        <div class="section-title"><span class="num">•</span>Client &amp; Date</div>
+        <label>Client name</label>
+        <input type="text" id="f_client" placeholder="e.g. Sri Ganesh Textiles" required>
+        <label>Date of visit</label>
+        <input type="date" id="f_date" required>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="num">I</span>System Details</div>
+        <div class="grid2">
+          <div><label>No. of boiler</label><input type="text" id="f_boilerNo"></div>
+          <div><label>Type of boiler</label><input type="text" id="f_boilerType"></div>
+          <div><label>Rated capacity</label><input type="text" id="f_capacity"></div>
+          <div><label>Operating pressure</label><input type="text" id="f_pressure"></div>
+          <div><label>Condensate return</label><input type="text" id="f_condensate"></div>
+          <div><label>External treatment</label><input type="text" id="f_extTreatment"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="num">II</span>Internal Treatment — Chemicals Used</div>
+        <div id="chemRows"></div>
+        <button type="button" class="add-link" id="addChem">+ Add chemical</button>
+      </div>
+
+      <div class="card analysis-card">
+        <div class="section-title">
+          <span class="num">III</span>
+          Water Analysis Report
+        </div>
+
+        <div class="analysis-table">
+          <div class="analysis-header">
+            <div>Parameter</div>
+            <div>Feed Water</div>
+            <div>Softener</div>
+            <div>Boiler Blowdown</div>
+            <div>Limits</div>
+            <div>Raw Water</div>
+          </div>
+
+          <div id="analysisRows"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="num">IV</span>Observation</div>
+        <label>Feed water total hardness</label>
+        <div class="chip-row" id="hardnessChip">
+          <div class="chip" data-val="normal">Normal</div>
+          <div class="chip" data-val="high">High — needs attention</div>
+        </div>
+        <label>Maintain softener water total hardness within (ppm)</label>
+        <input type="text" id="f_maintainPpm" value="10 ppm" readonly>
+        <div class="grid2">
+          <div>
+            <label>No. of blowdown given</label>
+            <input type="text" id="f_blowdownGiven" placeholder="3 hours in 1 time">
+          </div>
+          <div><label>Recommended blowdown</label><input type="text" id="f_blowdownRecommended"></div>
+        </div>
+        <label>Blowdown water condition</label>
+        <div class="chip-row" id="blowdownChip">
+          <div class="chip" data-val="tds_high">TDS high</div>
+          <div class="chip" data-val="hydroxide_high">Hydroxide alkalinity high</div>
+          <div class="chip" data-val="ph_low">pH very low</div>
+          <div class="chip" data-val="all_ok">All parameters within control</div>
+        </div>
+        <label>Corrective measures</label>
+        <textarea id="f_corrective" placeholder="Describe corrective action taken / recommended..."></textarea>
+      </div>
+
+      <div class="card">
+        <div class="section-title"><span class="num">V</span>Sign-off</div>
+        <label>For Sakthi Hitec Service — Name</label>
+        <input type="text" id="f_shsName">
+        <label>Designation</label>
+        <input type="text" id="f_shsDesig">
+        <label>Signature</label>
+        <div class="sig-wrap"><canvas class="sig-pad" id="sigShs"></canvas><button type="button" class="sig-clear"
+            data-target="sigShs">Clear</button></div>
+
+        <label style="margin-top:16px;">For Client — Name</label>
+        <input type="text" id="f_cliName">
+        <label>Designation</label>
+        <input type="text" id="f_cliDesig">
+        <label>Signature</label>
+        <div class="sig-wrap"><canvas class="sig-pad" id="sigCli"></canvas><button type="button" class="sig-clear"
+            data-target="sigCli">Clear</button></div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="saveBtn">Save report</button>
+      <div style="height:10px;"></div>
+    </form>
+  </div>
+
+  <!-- ================= VIEW: REPORTS LIST ================= -->
+  <div class="view" id="view-list">
+    <div class="card no-print">
+      <div class="section-title"><span class="num">⇅</span>Filter by date</div>
+      <div class="filter-bar">
+        <input type="date" id="filterFrom">
+        <input type="date" id="filterTo">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" id="clearFilter">
+          Clear Filter
+        </button>
+
+        <button class="btn btn-blue" id="printAll">
+          🖨 Print
+        </button>
+
+        <button class="btn btn-green" id="downloadPdf">
+          📄 Download PDF
+        </button>
+      </div>
+    </div>
+    <div id="reportsList"></div>
+  </div>
+
+  <!-- ================= BOTTOM NAV ================= -->
+  <div class="bottom-nav no-print">
+    <button class="nav-btn active" data-view="form">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+      New Report
+    </button>
+    <button class="nav-btn" data-view="list">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 6h16M4 12h16M4 18h10" />
+      </svg>
+      All Reports
+    </button>
+  </div>
+
+  <!-- ================= DETAIL OVERLAY ================= -->
+  <div class="overlay" id="detailOverlay">
+    <div class="overlay-header no-print">
+      <button id="closeDetail">←</button>
+      <div class="t" id="detailTitle">Report</div>
+    </div>
+    <div class="overlay-body" id="detailBody"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ============================================================
+       STORAGE HELPERS
+       Uses the browser's built-in localStorage so the app works fully
+       offline as an installed/standalone app (localStorage persists on
+       the device between launches, with no server or network required).
+       ============================================================ */
+    const INDEX_KEY = 'shs_report_index';
+    const STORAGE_PREFIX = 'shs_report_';
+
+    function storageAvailable() {
+      try {
+        const t = '__t__';
+        localStorage.setItem(t, '1');
+        localStorage.removeItem(t);
+        return true;
+      } catch (e) { return false; }
+    }
+    const STORAGE_OK = storageAvailable();
+
+    async function getIndex() {
+      if (!STORAGE_OK) return [];
+      try {
+        const raw = localStorage.getItem(INDEX_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) { return []; }
+    }
+    async function setIndex(list) {
+      localStorage.setItem(INDEX_KEY, JSON.stringify(list));
+    }
+    async function getReport(id) {
+      if (!STORAGE_OK) return null;
+      try {
+        const raw = localStorage.getItem(STORAGE_PREFIX + id);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) { return null; }
+    }
+    async function saveReport(report) {
+      if (!STORAGE_OK) throw new Error('Storage not available in this browser');
+      localStorage.setItem(STORAGE_PREFIX + report.id, JSON.stringify(report));
+      const idx = await getIndex();
+      const i = idx.findIndex(r => r.id === report.id);
+      const summary = { id: report.id, date: report.date, client: report.client, boilerType: report.boilerType, boilerNo: report.boilerNo, hardness: report.hardness };
+      if (i >= 0) idx[i] = summary; else idx.push(summary);
+      idx.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      await setIndex(idx);
+    }
+    async function deleteReport(id) {
+      localStorage.removeItem(STORAGE_PREFIX + id);
+      const idx = await getIndex();
+      await setIndex(idx.filter(r => r.id !== id));
+    }
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(window._toastT);
+      window._toastT = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+    function uid() { return 'r_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7); }
+    function fmtDate(d) {
+      if (!d) return '—';
+      const dt = new Date(d + 'T00:00:00');
+      if (isNaN(dt)) return d;
+      return dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    /* ============================================================
+       FORM SETUP — dynamic rows
+       ============================================================ */
+    const chemRowsEl = document.getElementById('chemRows');
+    const analysisRowsEl = document.getElementById('analysisRows');
+    const PARAMS = ['pH', 'Total Hardness', 'P-Alkalinity', 'M-Alkalinity', 'Hydroxide Alkalinity', 'Carbonate Alkalinity', 'Bicarbonate Alkalinity', 'Total Dissolved Solids', 'Cycle of Concentration'];
+    const BLOWDOWN = { "Total Hardness": "Not Detectable" }
+    const LIMITS = {
+      "pH": "10.5 - 12",
+      "Hydroxide Alkalinity": "350 ppm",
+      "Total Dissolved Solids": "5000 ppm"
+    };
+    const editableLimitRows = [
+      "Total Hardness",
+      "P-Alkalinity",
+      "M-Alkalinity",
+      "Carbonate Alkalinity",
+      "Bicarbonate Alkalinity",
+      "Cycle of Concentration"
+      // Add more parameter names that should be editable
+    ];
+
+    function addChemRow(name = '', dosage = '', stock = '') {
+      const row = document.createElement('div');
+      row.className = 'dyn-row';
+      row.innerHTML = `
+    <div><input type="text" placeholder="Chemical name" class="chem-name" value="${name}"></div>
+    <div><input type="text" placeholder="Dosage" class="chem-dosage" value="${dosage}"></div>
+    <div><input type="text" placeholder="Stock on date" class="chem-stock" value="${stock}"></div>
+    <button type="button" class="icon-btn del" title="Remove">✕</button>`;
+      row.querySelector('.del').onclick = () => row.remove();
+      chemRowsEl.appendChild(row);
+    }
+    document.getElementById('addChem').onclick = () => addChemRow();
+
+    function buildAnalysisRows() {
+      analysisRowsEl.innerHTML = "";
+
+      PARAMS.forEach((p) => {
+
+        const key = p.toLowerCase().replace(/[^a-z]+/g, "_");
+
+        const row = document.createElement("div");
+        row.className = "analysis-row";
+
+        row.innerHTML = `
+            <div class="pname">${p}</div>
+
+            <input class="an-feed" data-key="${key}">
+
+            <input class="an-softner" data-key="${key}">
+
+            <input
+                class="an-blow"
+                data-key="${key}"
+                value="${BLOWDOWN[p] || ""}"
+                ${BLOWDOWN[p] ? "readonly" : ""}
+            >
+
+            <input
+                type="text"
+                class="an-limit"
+                data-key="${key}"
+                value="${LIMITS[p] || ''}"
+                ${editableLimitRows.includes(p) ? "" : "readonly"}
+            >
+
+            <input class="an-raw" data-key="${key}">
+        `;
+
+        analysisRowsEl.appendChild(row);
+      });
+    }
+
+    buildAnalysisRows();
+    addChemRow('UNIKEM');
+    addChemRow('UNIKEM');
+    addChemRow('UNIKEM');
+
+    // chip toggles (single select within group)
+    function wireChipGroup(elId, multi) {
+      const group = document.getElementById(elId);
+      group.querySelectorAll('.chip').forEach(c => {
+        c.onclick = () => {
+          if (!multi) { group.querySelectorAll('.chip').forEach(x => x.classList.remove('on')); }
+          c.classList.toggle('on');
+        };
+      });
+    }
+    wireChipGroup('hardnessChip', false);
+    wireChipGroup('blowdownChip', true);
+
+    /* ---- signature pads ---- */
+    function setupSigPad(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = rect.width * ratio; canvas.height = rect.height * ratio;
+        ctx.scale(ratio, ratio);
+        ctx.strokeStyle = '#0B4F4A'; ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      }
+      resize();
+      let drawing = false, last = null;
+      function pos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const p = e.touches ? e.touches[0] : e;
+        return { x: p.clientX - rect.left, y: p.clientY - rect.top };
+      }
+      function start(e) { drawing = true; last = pos(e); e.preventDefault(); }
+      function move(e) {
+        if (!drawing) return;
+        const p = pos(e);
+        ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+        last = p; e.preventDefault();
+      }
+      function end() { drawing = false; }
+      canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+      canvas.addEventListener('touchstart', start, { passive: false }); canvas.addEventListener('touchmove', move, { passive: false }); canvas.addEventListener('touchend', end);
+      canvas._clear = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); };
+      canvas._isEmpty = () => {
+        const blank = document.createElement('canvas'); blank.width = canvas.width; blank.height = canvas.height;
+        return canvas.toDataURL() === blank.toDataURL();
+      };
+    }
+    setupSigPad('sigShs'); setupSigPad('sigCli');
+    document.querySelectorAll('.sig-clear').forEach(btn => {
+      btn.onclick = () => document.getElementById(btn.dataset.target)._clear();
+    });
+
+    /* today's date default */
+    document.getElementById('f_date').valueAsDate = new Date();
+
+    /* ============================================================
+       FORM SUBMIT
+       ============================================================ */
+    document.getElementById('reportForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
+
+      const chemicals = Array.from(chemRowsEl.querySelectorAll('.dyn-row')).map(r => ({
+        name: r.querySelector('.chem-name').value.trim(),
+        dosage: r.querySelector('.chem-dosage').value.trim(),
+        stock: r.querySelector('.chem-stock').value.trim()
+      })).filter(c => c.name || c.dosage || c.stock);
+
+      const analysis = PARAMS.map((p) => {
+        const key = p.toLowerCase().replace(/[^a-z]+/g, '_');
+
+        const feedInput = document.querySelector(`.an-feed[data-key="${key}"]`);
+        const softenerInput = document.querySelector(`.an-softner[data-key="${key}"]`);
+        const blowInput = document.querySelector(`.an-blow[data-key="${key}"]`);
+        const limitInput = document.querySelector(`.an-limit[data-key="${key}"]`)
+        const rawInput = document.querySelector(`.an-raw[data-key="${key}"]`);
+
+        return {
+          parameter: p,
+
+          feed: feedInput ? feedInput.value : "",
+
+          softener: softenerInput ? softenerInput.value : "",
+
+          blowdown:
+            p === "Total Hardness"
+              ? "Not Detectable"
+              : (blowInput ? blowInput.value : ""),
+
+          limits:
+            p === "pH"
+              ? "10.5 - 12"
+              : p === "Hydroxide Alkalinity"
+                ? "350 ppm"
+                : p === "Total Dissolved Solids"
+                  ? "5000 ppm"
+                  : (limitInput ? limitInput.value : ""),
+
+          rawWater: rawInput ? rawInput.value : ""
+        };
+      });
+
+      const hardnessChipOn = document.querySelector('#hardnessChip .chip.on');
+      const blowdownChipsOn = Array.from(document.querySelectorAll('#blowdownChip .chip.on')).map(c => c.textContent);
+
+      const sigShs = document.getElementById('sigShs');
+      const sigCli = document.getElementById('sigCli');
+
+      const report = {
+        id: uid(),
+        createdAt: new Date().toISOString(),
+        client: document.getElementById('f_client').value.trim(),
+        date: document.getElementById('f_date').value,
+        boilerNo: document.getElementById('f_boilerNo').value.trim(),
+        boilerType: document.getElementById('f_boilerType').value.trim(),
+        capacity: document.getElementById('f_capacity').value.trim(),
+        pressure: document.getElementById('f_pressure').value.trim(),
+        condensate: document.getElementById('f_condensate').value.trim(),
+        extTreatment: document.getElementById('f_extTreatment').value.trim(),
+        chemicals,
+        analysis,
+        hardness: hardnessChipOn ? hardnessChipOn.dataset.val : '',
+        maintainPpm: document.getElementById('f_maintainPpm').value.trim(),
+        blowdownGiven: document.getElementById('f_blowdownGiven').value.trim(),
+        blowdownRecommended: document.getElementById('f_blowdownRecommended').value.trim(),
+        blowdownConditions: blowdownChipsOn,
+        corrective: document.getElementById('f_corrective').value.trim(),
+        shsName: document.getElementById('f_shsName').value.trim(),
+        shsDesig: document.getElementById('f_shsDesig').value.trim(),
+        cliName: document.getElementById('f_cliName').value.trim(),
+        cliDesig: document.getElementById('f_cliDesig').value.trim(),
+        sigShs: sigShs._isEmpty() ? '' : sigShs.toDataURL('image/png'),
+        sigCli: sigCli._isEmpty() ? '' : sigCli.toDataURL('image/png')
+      };
+
+      try {
+        await saveReport(report);
+        toast('Report saved ✓');
+        document.getElementById('reportForm').reset();
+        chemRowsEl.innerHTML = ''; addChemRow('UNIKEM'); addChemRow('UNIKEM'); addChemRow('UNIKEM');
+        buildAnalysisRows();
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+        sigShs._clear(); sigCli._clear();
+        document.getElementById('f_date').valueAsDate = new Date();
+        switchView('list');
+      } catch (err) {
+        console.error(err);
+        toast('Could not save: ' + (err && err.message ? err.message : 'unknown error'));
+      }
+      saveBtn.disabled = false; saveBtn.textContent = 'Save report';
+    });
+
+    /* ============================================================
+       NAVIGATION
+       ============================================================ */
+    function switchView(name) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById('view-' + name).classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+      document.getElementById('headerTitle').textContent = name === 'form' ? 'New Field Report' : 'Field Reports';
+      document.getElementById('headerSub').textContent = name === 'form' ? 'Boiler Water Treatment' : 'Tap a report to view, print or share';
+      if (name === 'list') renderList();
+    }
+    document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => switchView(b.dataset.view));
+
+    /* ============================================================
+       REPORTS LIST + FILTER
+       ============================================================ */
+    async function renderList() {
+      const listEl = document.getElementById('reportsList');
+      listEl.innerHTML = '<div class="empty-state">Loading…</div>';
+      let idx = await getIndex();
+
+      const from = document.getElementById('filterFrom').value;
+      const to = document.getElementById('filterTo').value;
+      if (from) idx = idx.filter(r => r.date >= from);
+      if (to) idx = idx.filter(r => r.date <= to);
+
+      if (idx.length === 0) {
+        listEl.innerHTML = `<div class="empty-state"><div class="eicon">🗂️</div>No reports found.<br>Create one from the New Report tab, or clear the date filter.</div>`;
+        return;
+      }
+      listEl.innerHTML = '';
+      idx.forEach(r => {
+        const dotColor = r.hardness === 'high' ? 'var(--bad)' : 'var(--good)';
+        const item = document.createElement('div');
+        item.className = 'report-item';
+        item.innerHTML = `
+      <div class="dot" style="background:${dotColor}"></div>
+      <div class="info">
+        <div class="client">${r.client || 'Unnamed client'}</div>
+        <div class="meta">${fmtDate(r.date)} · ${r.boilerType || 'Boiler'} ${r.boilerNo ? '#' + r.boilerNo : ''}</div>
+      </div>
+      <div class="arrow">›</div>`;
+        item.onclick = () => openDetail(r.id);
+        listEl.appendChild(item);
+      });
+    }
+    document.getElementById('filterFrom').addEventListener('change', renderList);
+    document.getElementById('filterTo').addEventListener('change', renderList);
+    document.getElementById('clearFilter').onclick = () => {
+      document.getElementById('filterFrom').value = '';
+      document.getElementById('filterTo').value = '';
+      renderList();
+    };
+
+    /* ============================================================
+       REPORT CONTENT TEMPLATE (shared by detail overlay, print-all, PDF)
+       ============================================================ */
+    function buildReportContentHTML(r) {
+      const chemRows = (r.chemicals || []).map(c => `<tr><td>${c.name || ''}</td><td>${c.dosage || ''}</td><td>${c.stock || ''}</td></tr>`).join('') || '<tr><td colspan="3" style="color:var(--muted)">No chemicals recorded</td></tr>';
+      const anRows = (r.analysis || []).map(a => `
+      <tr>
+      <td>${a.parameter}</td>
+      <td>${a.feed || '-'}</td>
+      <td>${a.softener || '-'}</td>
+      <td>${a.blowdown || '-'}</td>
+      <td>${a.limits || '-'}</td>
+      <td>${a.rawWater || '-'}</td>
+      </tr>`).join('');
+      const blowdownConds = (r.blowdownConditions || []).length ? r.blowdownConditions.map(c => `<span class="chip on" style="cursor:default; padding:5px 10px; font-size:11.5px;">${c}</span>`).join(' ') : '<span style="color:var(--muted); font-size:13px;">—</span>';
+
+      return `
+    <div class="card">
+      <div class="section-title"><span class="num">•</span>Overview</div>
+      <div class="detail-grid">
+        <div><div class="k">Client</div><div class="v">${r.client || '—'}</div></div>
+        <div><div class="k">Date</div><div class="v">${fmtDate(r.date)}</div></div>
+        <div><div class="k">Boiler type</div><div class="v">${r.boilerType || '—'}</div></div>
+        <div><div class="k">Boiler no.</div><div class="v">${r.boilerNo || '—'}</div></div>
+        <div><div class="k">Rated capacity</div><div class="v">${r.capacity || '—'}</div></div>
+        <div><div class="k">Operating pressure</div><div class="v">${r.pressure || '—'}</div></div>
+        <div><div class="k">Condensate return</div><div class="v">${r.condensate || '—'}</div></div>
+        <div><div class="k">External treatment</div><div class="v">${r.extTreatment || '—'}</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><span class="num">II</span>Chemicals Used</div>
+      <table class="detail-table"><thead><tr><th>Chemical</th><th>Dosage</th><th>Stock on date</th></tr></thead><tbody>${chemRows}</tbody></table>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><span class="num">III</span>Water Analysis</div>
+      <table class="detail-table"><thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Feed Water</th>
+          <th>Softener</th>
+          <th>Boiler Blowdown Water</th>
+          <th>Limits</th>
+          <th>Raw Water</th>
+      </tr>
+      </thead>
+      <tbody>${anRows}</tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><span class="num">IV</span>Observation</div>
+      <div class="detail-grid">
+        <div><div class="k">Feed water hardness</div><div class="v">${r.hardness === 'high' ? 'High — needs attention' : (r.hardness === 'normal' ? 'Normal' : '—')}</div></div>
+        <div><div class="k">Maintain within</div><div class="v">${r.maintainPpm || '—'}</div></div>
+        <div><div class="k">No. of blowdown given</div><div class="v">${r.blowdownGiven || '—'}</div></div>
+        <div><div class="k">Recommended blowdown</div><div class="v">${r.blowdownRecommended || '—'}</div></div>
+      </div>
+      <div style="margin-top:10px;"><div class="k" style="font-size:11.5px; color:var(--muted); font-weight:600; text-transform:uppercase;">Blowdown water condition</div>
+      <div class="chip-row" style="margin-top:6px;">${blowdownConds}</div></div>
+      <div style="margin-top:10px;"><div class="k" style="font-size:11.5px; color:var(--muted); font-weight:600; text-transform:uppercase;">Corrective measures</div>
+      <div class="v" style="font-weight:500; margin-top:3px;">${r.corrective || '—'}</div></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><span class="num">V</span>Sign-off</div>
+      <div class="detail-grid">
+        <div><div class="k">For Sakthi Hitec Service</div><div class="v">${r.shsName || '—'} ${r.shsDesig ? ('· ' + r.shsDesig) : ''}</div></div>
+        <div><div class="k">For Client</div><div class="v">${r.cliName || '—'} ${r.cliDesig ? ('· ' + r.cliDesig) : ''}</div></div>
+      </div>
+      <div class="grid2" style="margin-top:10px;">
+        <div>${r.sigShs ? `<img class="sig-img" src="${r.sigShs}">` : '<div style="color:var(--muted); font-size:12px;">No signature</div>'}</div>
+        <div>${r.sigCli ? `<img class="sig-img" src="${r.sigCli}">` : '<div style="color:var(--muted); font-size:12px;">No signature</div>'}</div>
+      </div>
+    </div>
+  `;
+    }
+
+    /* ============================================================
+       DETAIL OVERLAY
+       ============================================================ */
+    let currentReport = null;
+
+    async function openDetail(id) {
+      const r = await getReport(id);
+      if (!r) { toast('Report not found'); return; }
+      currentReport = r;
+      document.getElementById('detailTitle').textContent = r.client || 'Report';
+
+      document.getElementById('detailBody').innerHTML = `
+    <div id="reportContent">
+      ${buildReportContentHTML(r)}
+      <div class="action-bar no-print">
+        <button id="btnPrint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>Print</button>
+        <button id="btnPdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v14M5 10l7 7 7-7M4 21h16"/></svg>PDF</button>
+        <button id="btnShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 3.9M15.4 6.6L8.6 10.5"/></svg>Share</button>
+        <button id="btnDelete" class="danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg>Delete</button>
+      </div>
+    </div>
+  `;
+
+      document.getElementById('btnPrint').onclick = () => window.print();
+      document.getElementById('btnPdf').onclick = () => downloadPDF();
+      document.getElementById('btnShare').onclick = () => shareReport(r);
+      document.getElementById('btnDelete').onclick = async () => {
+        if (confirm('Delete this report? This cannot be undone.')) {
+          await deleteReport(r.id);
+          closeDetail();
+          renderList();
+          toast('Report deleted');
+        }
+      };
+
+      document.getElementById('detailOverlay').classList.add('active');
+    }
+    function closeDetail() { document.getElementById('detailOverlay').classList.remove('active'); }
+    document.getElementById('closeDetail').onclick = closeDetail;
+
+    /* ============================================================
+       Helper: get reports matching current date filter
+       ============================================================ */
+    async function getFilteredReports() {
+      const from = document.getElementById('filterFrom').value;
+      const to = document.getElementById('filterTo').value;
+      let idx = await getIndex();
+      if (from) idx = idx.filter(r => r.date >= from);
+      if (to) idx = idx.filter(r => r.date <= to);
+
+      const reports = [];
+      for (const item of idx) {
+        const full = await getReport(item.id);
+        if (full) reports.push(full);
+      }
+      return reports;
+    }
+
+
+    /* ============================================================
+   COMMON PDF LAYOUT
+   ============================================================ */
+    function drawReportPDF(pdf, report) {
+
+      pdf.setFontSize(18);
+      pdf.text("Sakthi Hitec Service", 105, 15, { align: "center" });
+
+      pdf.setFontSize(14);
+      pdf.text("Boiler Water Treatment Report", 105, 23, { align: "center" });
+
+      pdf.setFontSize(10);
+
+      let y = 35;
+
+      pdf.text(`Client : ${report.client || ""}`, 15, y);
+      pdf.text(`Date : ${fmtDate(report.date)}`, 120, y);
+
+      y += 8;
+
+      pdf.text(`Boiler No : ${report.boilerNo || ""}`, 15, y);
+      pdf.text(`Boiler Type : ${report.boilerType || ""}`, 120, y);
+
+      y += 8;
+
+      pdf.text(`Capacity : ${report.capacity || ""}`, 15, y);
+      pdf.text(`Pressure : ${report.pressure || ""}`, 120, y);
+
+      y += 8;
+
+      pdf.text(`Condensate Return : ${report.condensate || ""}`, 15, y);
+      pdf.text(`External Treatment : ${report.extTreatment || ""}`, 120, y);
+
+      y += 12;
+
+      pdf.setFontSize(13);
+      pdf.text("Chemicals Used", 15, y);
+
+      pdf.autoTable({
+        startY: y + 3,
+        head: [["Chemical", "Dosage", "Stock"]],
+        body: (report.chemicals || []).map(c => [
+          c.name,
+          c.dosage,
+          c.stock
+        ]),
+        theme: "grid",
+        styles: { fontSize: 9 }
+      });
+
+      pdf.setFontSize(13);
+
+      pdf.text(
+        "Water Analysis",
+        15,
+        pdf.lastAutoTable.finalY + 10
+      );
+
+      pdf.autoTable({
+        startY: pdf.lastAutoTable.finalY + 13,
+        head: [[
+          "Parameter",
+          "Feed",
+          "Softener",
+          "Blowdown",
+          "Limits",
+          "Raw Water"
+        ]],
+        body: (report.analysis || []).map(a => [
+          a.parameter,
+          a.feed,
+          a.softener,
+          a.blowdown,
+          a.limits,
+          a.rawWater
+        ]),
+        theme: "grid",
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [11, 79, 74] }
+      });
+
+      let finalY = pdf.lastAutoTable.finalY + 12;
+
+      pdf.setFontSize(13);
+      pdf.text("Observation", 15, finalY);
+
+      finalY += 8;
+
+      pdf.setFontSize(10);
+
+      pdf.text(`Feed Water Hardness : ${report.hardness || ""}`, 15, finalY);
+
+      finalY += 6;
+
+      pdf.text(`Maintain : ${report.maintainPpm || ""}`, 15, finalY);
+
+      finalY += 6;
+
+      pdf.text(`Blowdown Given : ${report.blowdownGiven || ""}`, 15, finalY);
+
+      finalY += 6;
+
+      pdf.text(`Recommended Blowdown : ${report.blowdownRecommended || ""}`, 15, finalY);
+
+      finalY += 8;
+
+      pdf.text(
+        `Corrective Measures : ${report.corrective || ""}`,
+        15,
+        finalY,
+        { maxWidth: 175 }
+      );
+
+      finalY += 25;
+
+      if (report.sigShs) {
+
+        pdf.text("Sakthi Hitec Service", 25, finalY);
+
+        pdf.addImage(
+          report.sigShs,
+          "PNG",
+          20,
+          finalY + 2,
+          40,
+          20
+        );
+      }
+
+      if (report.sigCli) {
+
+        pdf.text("Client", 140, finalY);
+
+        pdf.addImage(
+          report.sigCli,
+          "PNG",
+          135,
+          finalY + 2,
+          40,
+          20
+        );
+      }
+
+    }
+
+    /* ============================================================
+       PDF EXPORT (single report, from detail overlay)
+       ============================================================ */
+    async function downloadPDF() {
+
+    if(!currentReport) return;
+
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF("p","mm","a4");
+
+    drawReportPDF(pdf,currentReport);
+
+    pdf.save("Water_Analysis_Report.pdf");
+
+}
+
+    /* ============================================================
+       PRINT ALL (respects current date filter)
+       ============================================================ */
+    document.getElementById('printAll').onclick = async () => {
+      const reports = await getFilteredReports();
+      if (reports.length === 0) { toast('No reports found'); return; }
+
+      // remove any leftover container from a previous run
+      const existing = document.getElementById('printAllContainer');
+      if (existing) existing.remove();
+
+      const container = document.createElement('div');
+      container.className = 'print-all-container';
+      container.id = 'printAllContainer';
+
+      reports.forEach(r => {
+        const page = document.createElement('div');
+        page.className = 'report-page';
+        page.innerHTML = buildReportContentHTML(r);
+        container.appendChild(page);
+      });
+
+      document.body.appendChild(container);
+      document.body.classList.add('printing-all');
+
+      // give the browser a tick to paint before opening the print dialog
+      setTimeout(() => window.print(), 50);
+    };
+
+    function cleanupPrintAll() {
+      const c = document.getElementById('printAllContainer');
+      if (c) c.remove();
+      document.body.classList.remove('printing-all');
+    }
+    window.addEventListener('afterprint', cleanupPrintAll);
+
+    /* ============================================================
+       DOWNLOAD PDF — ALL REPORTS MATCHING FILTER
+       ============================================================ */
+    /* ============================================================
+   DOWNLOAD ALL REPORTS (JS PDF)
+   ============================================================ */
+
+document.getElementById("downloadPdf").onclick = async () => {
+
+    const reports = await getFilteredReports();
+
+    if(reports.length===0){
+        toast("No reports found");
+        return;
+    }
+
+    toast("Generating PDF...");
+
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF("p","mm","a4");
+
+    for(let i=0;i<reports.length;i++){
+
+        if(i>0){
+            pdf.addPage();
+        }
+
+        drawReportPDF(pdf,reports[i]);
+
+    }
+
+    pdf.save(
+        `Boiler_Reports_${new Date().toISOString().slice(0,10)}.pdf`
+    );
+
+};
+
+    /* ============================================================
+       SHARE
+       ============================================================ */
+    async function shareReport(r) {
+      const text = `Boiler Water Treatment Report\\nClient: ${r.client}\\nDate: ${fmtDate(r.date)}\\nBoiler: ${r.boilerType} ${r.boilerNo}\\nFeed water hardness: ${r.hardness || '—'}\\nCorrective measures: ${r.corrective || '—'}`;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: `Report — ${r.client}`, text });
+          return;
+        } catch (e) { /* user cancelled or unsupported, fall through */ }
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        toast('Copied report summary to clipboard');
+      } catch (e) {
+        toast('Could not share — copy manually');
+      }
+    }
+
+    /* init */
+    renderList();
+  </script>
+</body>
+
+</html>
